@@ -132,6 +132,7 @@ export function App() {
     }
   };
 
+  // Mouse event handlers
   const handleMouseDown = (e: MouseEvent, emoji: Emoji) => {
     if (!containerRef.current || !imageRef.current) return;
     e.preventDefault();
@@ -176,6 +177,59 @@ export function App() {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Touch event handlers
+  const handleTouchStart = (e: TouchEvent, emoji: Emoji) => {
+    if (!containerRef.current || !imageRef.current) return;
+
+    // Prevent scrolling while dragging
+    e.preventDefault();
+
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+
+      dragInfo.current = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        startLeft: emoji.x,
+        startTop: emoji.y,
+      };
+
+      setSelectedEmojiId(emoji.id);
+    }
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!dragInfo.current || !imageRef.current || !selectedEmojiId) return;
+
+    // Prevent scrolling while dragging
+    e.preventDefault();
+
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+
+      const dx = touch.clientX - dragInfo.current.startX;
+      const dy = touch.clientY - dragInfo.current.startY;
+      const { startLeft, startTop } = dragInfo.current;
+
+      setEmojis((prev) =>
+        prev.map((em) => {
+          if (em.id === selectedEmojiId) {
+            return {
+              ...em,
+              x: startLeft + dx,
+              y: startTop + dy,
+            };
+          }
+          return em;
+        })
+      );
+    }
+  };
+
+  const handleTouchEnd = () => {
+    dragInfo.current = null;
   };
 
   const handleSizeChange = (e: Event) => {
@@ -336,7 +390,12 @@ export function App() {
 
         {imageUrl && (
           <div class="mt-5">
-            <div class="relative" ref={containerRef}>
+            <div
+              class="relative"
+              ref={containerRef}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               <img
                 ref={imageRef}
                 src={imageUrl}
@@ -362,6 +421,7 @@ export function App() {
                     transformOrigin: 'top left',
                   }}
                   onMouseDown={(e) => handleMouseDown(e, emoji)}
+                  onTouchStart={(e) => handleTouchStart(e, emoji)}
                   onDblClick={() => {
                     setEmojis((prev) =>
                       prev.filter((em) => em.id !== emoji.id)
