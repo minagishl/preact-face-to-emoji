@@ -301,14 +301,14 @@ export function App() {
   };
 
   return (
-    <div class="max-w-4xl mx-auto p-5">
+    <div class="mx-auto max-w-4xl p-5">
       <div class="bg-white p-5">
-        <h1 class="text-2xl font-bold text-center text-gray-800 mb-5">
+        <h1 class="mb-5 text-center text-2xl font-bold text-gray-800">
           Face Emoji App
         </h1>
 
         <div
-          class="border-2 border-dashed border-gray-300 p-5 text-center cursor-pointer hover:bg-gray-50 transition-colors"
+          class="cursor-pointer border-2 border-dashed border-gray-300 p-5 text-center transition-colors hover:bg-gray-50"
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
           onClick={() =>
@@ -329,7 +329,7 @@ export function App() {
         </div>
 
         {isLoading && (
-          <div class="text-center my-5">
+          <div class="my-5 text-center">
             <p>Loading models...</p>
           </div>
         )}
@@ -348,7 +348,7 @@ export function App() {
               {emojis.map((emoji) => (
                 <div
                   key={emoji.id}
-                  class={`absolute select-none cursor-move ${
+                  class={`absolute cursor-move select-none ${
                     emoji.id === selectedEmojiId
                       ? 'outline-2 outline-green-500'
                       : ''
@@ -370,7 +370,7 @@ export function App() {
                   }}
                 >
                   <div
-                    class="w-full h-full"
+                    class="h-full w-full"
                     dangerouslySetInnerHTML={renderEmoji(emoji.char)}
                   />
                 </div>
@@ -378,16 +378,16 @@ export function App() {
             </div>
 
             <div class="mt-5 space-y-4">
-              <div class="space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row items-center">
+              <div class="flex flex-col items-center space-y-2 md:flex-row md:space-y-0 md:space-x-2">
                 <button
                   onClick={detectAndPlaceEmojis}
                   disabled={detecting}
-                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed flex items-center justify-center w-full md:w-fit"
+                  class="flex w-full items-center justify-center rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 disabled:cursor-not-allowed disabled:bg-green-300 md:w-fit"
                 >
                   {detecting ? (
                     <>
                       <svg
-                        class="animate-spin h-5 w-5 mr-2"
+                        class="mr-2 h-5 w-5 animate-spin"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -414,32 +414,32 @@ export function App() {
                 </button>
                 <button
                   onClick={removeSelectedEmoji}
-                  class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors w-full md:w-fit"
+                  class="w-full rounded bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600 md:w-fit"
                 >
                   Remove Selected Emoji
                 </button>
                 <button
                   onClick={clearAllEmojis}
-                  class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors w-full md:w-fit"
+                  class="w-full rounded bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600 md:w-fit"
                 >
                   Clear All
                 </button>
                 <button
                   onClick={downloadImage}
                   disabled={downloading || !imageUrl || emojis.length === 0}
-                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed w-full md:w-fit"
+                  class="w-full rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-blue-300 md:w-fit"
                 >
                   {downloading ? 'Processing...' : 'Download Image'}
                 </button>
               </div>
 
               <div>
-                <h3 class="font-bold mb-2">Select Emoji</h3>
+                <h3 class="mb-2 font-bold">Select Emoji</h3>
                 <div class="grid grid-cols-8 gap-1">
                   {EMOJIS.map((emoji) => (
                     <div
                       key={emoji}
-                      class={`text-2xl text-center cursor-pointer p-2 rounded hover:bg-gray-100 flex justify-center ${
+                      class={`flex cursor-pointer justify-center rounded p-2 text-center text-2xl hover:bg-gray-100 ${
                         selectedEmoji === emoji ? 'bg-gray-200' : ''
                       }`}
                       onClick={() => {
@@ -457,7 +457,7 @@ export function App() {
                       }}
                     >
                       <div
-                        class="w-10 h-10 flex items-center justify-center"
+                        class="flex h-10 w-10 items-center justify-center"
                         dangerouslySetInnerHTML={renderEmoji(emoji)}
                       />
                     </div>
@@ -466,7 +466,7 @@ export function App() {
               </div>
 
               <div>
-                <h3 class="font-bold mb-2">Adjust Emoji Size</h3>
+                <h3 class="mb-2 font-bold">Adjust Emoji Size</h3>
                 <input
                   type="range"
                   min="0.5"
