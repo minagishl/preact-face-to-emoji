@@ -9,6 +9,7 @@ interface Emoji {
   y: number;
   width: number;
   scale: number;
+  rotation: number;
 }
 
 export function App() {
@@ -117,6 +118,7 @@ export function App() {
         y: detection.box.y / scaleFactor,
         width: detection.box.width / scaleFactor,
         scale: 1,
+        rotation: 0,
       }));
 
       setEmojis(newEmojis);
@@ -244,6 +246,46 @@ export function App() {
     );
   };
 
+  // Rotation change handler
+  const handleRotationChange = (e: Event) => {
+    const rotation = (e.target as HTMLInputElement).value;
+    setEmojis((prev) =>
+      prev.map((emoji) => {
+        if (emoji.id === selectedEmojiId) {
+          return { ...emoji, rotation: parseFloat(rotation) };
+        }
+        return emoji;
+      })
+    );
+  };
+
+  // Rotation functions
+  const rotateLeft = () => {
+    if (selectedEmojiId) {
+      setEmojis((prev) =>
+        prev.map((emoji) => {
+          if (emoji.id === selectedEmojiId) {
+            return { ...emoji, rotation: (emoji.rotation || 0) - 15 };
+          }
+          return emoji;
+        })
+      );
+    }
+  };
+
+  const rotateRight = () => {
+    if (selectedEmojiId) {
+      setEmojis((prev) =>
+        prev.map((emoji) => {
+          if (emoji.id === selectedEmojiId) {
+            return { ...emoji, rotation: (emoji.rotation || 0) + 15 };
+          }
+          return emoji;
+        })
+      );
+    }
+  };
+
   const removeSelectedEmoji = () => {
     if (selectedEmojiId) {
       setEmojis((prev) => prev.filter((emoji) => emoji.id !== selectedEmojiId));
@@ -324,7 +366,15 @@ export function App() {
               const y = emoji.y * scaleFactor;
               const width = emoji.width * scaleFactor * emoji.scale;
 
-              ctx.drawImage(emojiImg, x, y, width, width);
+              // Rotate the emoji
+              ctx.save();
+              const centerX = x + width / 2;
+              const centerY = y + width / 2;
+              ctx.translate(centerX, centerY);
+              ctx.rotate(((emoji.rotation || 0) * Math.PI) / 180);
+              ctx.drawImage(emojiImg, -width / 2, -width / 2, width, width);
+              ctx.restore();
+
               resolve(null);
             };
             emojiImg.crossOrigin = 'anonymous';
@@ -417,8 +467,8 @@ export function App() {
                     top: `${emoji.y}px`,
                     width: `${emoji.width}px`,
                     height: `${emoji.width}px`,
-                    transform: `scale(${emoji.scale})`,
-                    transformOrigin: 'top left',
+                    transform: `scale(${emoji.scale}) rotate(${emoji.rotation || 0}deg)`,
+                    transformOrigin: 'center center',
                   }}
                   onMouseDown={(e) => handleMouseDown(e, emoji)}
                   onTouchStart={(e) => handleTouchStart(e, emoji)}
@@ -539,6 +589,52 @@ export function App() {
                   class="w-full"
                   onChange={handleSizeChange}
                 />
+              </div>
+
+              {/* Rotation controls */}
+              <div>
+                <h3 class="mb-2 font-bold">Rotate Emoji</h3>
+                <div class="flex items-center space-x-2">
+                  <button
+                    onClick={rotateLeft}
+                    disabled={!selectedEmojiId}
+                    class="rounded bg-gray-200 px-3 py-1 text-gray-800 hover:bg-gray-300 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+                    ↺
+                  </button>
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    step="5"
+                    value={
+                      emojis.find((emoji) => emoji.id === selectedEmojiId)
+                        ?.rotation ?? 0
+                    }
+                    class="w-full"
+                    onChange={handleRotationChange}
+                    disabled={!selectedEmojiId}
+                  />
+                  <button
+                    onClick={rotateRight}
+                    disabled={!selectedEmojiId}
+                    class="rounded bg-gray-200 px-3 py-1 text-gray-800 hover:bg-gray-300 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+                    ↻
+                  </button>
+                </div>
+                <div class="mt-1 text-center text-sm">
+                  {selectedEmojiId ? (
+                    <span>
+                      Rotation:{' '}
+                      {emojis.find((emoji) => emoji.id === selectedEmojiId)
+                        ?.rotation ?? 0}
+                      °
+                    </span>
+                  ) : (
+                    <span class="text-gray-500">Select an emoji to rotate</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
