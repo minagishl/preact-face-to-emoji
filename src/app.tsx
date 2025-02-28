@@ -302,7 +302,7 @@ export function App() {
 
   return (
     <div class="max-w-4xl mx-auto p-5">
-      <div class="bg-white p-5 rounded-lg shadow-lg">
+      <div class="bg-white p-5">
         <h1 class="text-2xl font-bold text-center text-gray-800 mb-5">
           Face Emoji App
         </h1>
