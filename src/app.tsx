@@ -456,7 +456,7 @@ export function App() {
                       }}
                     >
                       <div
-                        class="w-10 h-10"
+                        class="w-10 h-10 flex items-center justify-center"
                         dangerouslySetInnerHTML={renderEmoji(emoji)}
                       />
                     </div>
