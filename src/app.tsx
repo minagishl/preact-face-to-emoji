@@ -339,7 +339,7 @@ export function App() {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'face-emoji-image.png';
+          a.download = `face-emoji-image-${new Date().toISOString().slice(0, -5)}.png`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
