@@ -343,6 +343,7 @@ export function App() {
                 alt="Uploaded image"
                 class="max-w-full"
                 crossOrigin="anonymous"
+                onClick={() => setSelectedEmojiId(null)}
               />
               {emojis.map((emoji) => (
                 <div
