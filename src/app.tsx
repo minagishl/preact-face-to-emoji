@@ -636,7 +636,7 @@ export function App() {
                       ?.scale ?? 1
                   }
                   class="w-full"
-                  onChange={handleSizeChange}
+                  onInput={handleSizeChange}
                 />
               </div>
 
@@ -661,7 +661,7 @@ export function App() {
                         ?.rotation ?? 0
                     }
                     class="w-full"
-                    onChange={handleRotationChange}
+                    onInput={handleRotationChange}
                     disabled={!selectedEmojiId}
                   />
                   <button
