@@ -13,6 +13,7 @@ interface Emoji {
 }
 
 export function App() {
+  // State for selected emoji character and list of placed emojis
   const [selectedEmoji, setSelectedEmoji] = useState('😀');
   const [emojis, setEmojis] = useState<Emoji[]>([]);
   const [selectedEmojiId, setSelectedEmojiId] = useState<string | null>(null);
@@ -21,6 +22,8 @@ export function App() {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [detecting, setDetecting] = useState(false);
+  const [manualAddMode, setManualAddMode] = useState(false);
+
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragInfo = useRef<{
@@ -53,6 +56,7 @@ export function App() {
     loadModels();
   }, []);
 
+  // Load face detection models from remote URL
   const loadModels = async () => {
     try {
       setIsLoading(true);
@@ -67,6 +71,7 @@ export function App() {
     }
   };
 
+  // Handle image file upload
   const handleImageUpload = (file: File) => {
     if (!file.type.match('image.*')) {
       alert('Please select an image file.');
@@ -81,6 +86,7 @@ export function App() {
     reader.readAsDataURL(file);
   };
 
+  // Handle file drop
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer?.files[0];
@@ -89,6 +95,7 @@ export function App() {
     }
   };
 
+  // Detect faces and place emojis automatically on detected face locations
   const detectAndPlaceEmojis = async () => {
     if (!modelsLoaded) {
       alert('Face detection model is still loading. Please wait.');
@@ -134,19 +141,46 @@ export function App() {
     }
   };
 
-  // Mouse event handlers
+  // Handle click on the image container to add an emoji
+  const handleContainerClick = (e: MouseEvent) => {
+    if (
+      manualAddMode &&
+      imageRef.current &&
+      containerRef.current &&
+      e.target === imageRef.current
+    ) {
+      const rect = containerRef.current.getBoundingClientRect();
+      // Calculate the click position relative to the container
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      // Set a default width for manually added emoji
+      const defaultWidth = 50;
+      const newEmoji: Emoji = {
+        id: Math.random().toString(36).substring(7),
+        char: selectedEmoji,
+        x,
+        y,
+        width: defaultWidth,
+        scale: 1,
+        rotation: 0,
+      };
+      setEmojis((prev) => [...prev, newEmoji]);
+    } else if (!manualAddMode && e.target === imageRef.current) {
+      // Clear the selected emoji when clicking outside the container
+      setSelectedEmojiId(null);
+    }
+  };
+
+  // Mouse event handlers for dragging an emoji
   const handleMouseDown = (e: MouseEvent, emoji: Emoji) => {
     if (!containerRef.current || !imageRef.current) return;
     e.preventDefault();
 
-    const relativeX = emoji.x;
-    const relativeY = emoji.y;
-
     dragInfo.current = {
       startX: e.clientX,
       startY: e.clientY,
-      startLeft: relativeX,
-      startTop: relativeY,
+      startLeft: emoji.x,
+      startTop: emoji.y,
     };
     setSelectedEmojiId(emoji.id);
 
@@ -234,6 +268,7 @@ export function App() {
     dragInfo.current = null;
   };
 
+  // Handle emoji size change using the range input
   const handleSizeChange = (e: Event) => {
     const scale = (e.target as HTMLInputElement).value;
     setEmojis((prev) =>
@@ -273,6 +308,7 @@ export function App() {
     }
   };
 
+  // Rotate the selected emoji right by 15 degrees
   const rotateRight = () => {
     if (selectedEmojiId) {
       setEmojis((prev) =>
@@ -286,6 +322,7 @@ export function App() {
     }
   };
 
+  // Remove the currently selected emoji
   const removeSelectedEmoji = () => {
     if (selectedEmojiId) {
       setEmojis((prev) => prev.filter((emoji) => emoji.id !== selectedEmojiId));
@@ -293,6 +330,7 @@ export function App() {
     }
   };
 
+  // Clear all emojis from the image
   const clearAllEmojis = () => {
     setEmojis([]);
     setSelectedEmojiId(null);
@@ -443,6 +481,7 @@ export function App() {
             <div
               class="relative"
               ref={containerRef}
+              onClick={(e) => handleContainerClick(e as unknown as MouseEvent)}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
@@ -452,11 +491,11 @@ export function App() {
                 alt="Uploaded image"
                 class="max-w-full"
                 crossOrigin="anonymous"
-                onClick={() => setSelectedEmojiId(null)}
               />
               {emojis.map((emoji) => (
                 <div
                   key={emoji.id}
+                  onClick={(e) => e.stopPropagation()}
                   class={`absolute cursor-move select-none ${
                     emoji.id === selectedEmojiId
                       ? 'outline-2 outline-green-500'
@@ -540,6 +579,16 @@ export function App() {
                   class="w-full rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-blue-300 md:w-fit"
                 >
                   {downloading ? 'Processing...' : 'Download Image'}
+                </button>
+                <button
+                  onClick={() => setManualAddMode(!manualAddMode)}
+                  class={`w-full rounded px-4 py-2 text-white transition-colors md:w-fit ${
+                    manualAddMode
+                      ? 'bg-purple-600 hover:bg-purple-700'
+                      : 'bg-purple-500 hover:bg-purple-600'
+                  }`}
+                >
+                  {manualAddMode ? 'Manual Add: On' : 'Manual Add: Off'}
                 </button>
               </div>
 
