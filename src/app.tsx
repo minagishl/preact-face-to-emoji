@@ -377,11 +377,11 @@ export function App() {
             </div>
 
             <div class="mt-5 space-y-4">
-              <div class="space-x-2 flex items-center">
+              <div class="space-y-2 md:space-y-0 md:space-x-2 flex flex-col md:flex-row items-center">
                 <button
                   onClick={detectAndPlaceEmojis}
                   disabled={detecting}
-                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed flex items-center justify-center"
+                  class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed flex items-center justify-center w-full md:w-fit"
                 >
                   {detecting ? (
                     <>
@@ -413,20 +413,20 @@ export function App() {
                 </button>
                 <button
                   onClick={removeSelectedEmoji}
-                  class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
+                  class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors w-full md:w-fit"
                 >
                   Remove Selected Emoji
                 </button>
                 <button
                   onClick={clearAllEmojis}
-                  class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                  class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors w-full md:w-fit"
                 >
                   Clear All
                 </button>
                 <button
                   onClick={downloadImage}
                   disabled={downloading || !imageUrl || emojis.length === 0}
-                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed w-full md:w-fit"
                 >
                   {downloading ? 'Processing...' : 'Download Image'}
                 </button>
