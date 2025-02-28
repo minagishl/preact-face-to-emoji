@@ -18,6 +18,7 @@ export function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragInfo = useRef<{
@@ -103,7 +104,7 @@ export function App() {
         new faceapi.TinyFaceDetectorOptions()
       );
 
-      // 画像の実際のサイズと表示サイズの比率を計算
+      // Calculate the ratio between actual image size and display size
       const imageRect = imageRef.current.getBoundingClientRect();
       const scaleFactor = imageRef.current.naturalWidth / imageRect.width;
 
@@ -197,7 +198,7 @@ export function App() {
     setSelectedEmojiId(null);
   };
 
-  // 絵文字のレンダリング用のヘルパー関数
+  // Helper function for emoji rendering
   const renderEmoji = (char: string) => {
     return {
       __html: twemoji.parse(char, {
@@ -206,6 +207,93 @@ export function App() {
         base: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/',
       }),
     };
+  };
+
+  // Function to download the image with emojis at original quality
+  const downloadImage = async () => {
+    if (!imageRef.current || !imageUrl) {
+      alert('Please upload an image first.');
+      return;
+    }
+
+    try {
+      setDownloading(true);
+
+      // Create a hidden canvas with the original image dimensions
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Failed to get canvas context');
+      }
+
+      // Wait for the image to load completely to get correct dimensions
+      await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          // Set canvas to original image size
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+
+          // Draw the original image
+          ctx.drawImage(img, 0, 0);
+          resolve(null);
+        };
+        img.src = imageUrl;
+      });
+
+      // Calculate the scale factor between displayed and original image size
+      const displayWidth = imageRef.current.clientWidth;
+      const originalWidth = canvas.width;
+      const scaleFactor = originalWidth / displayWidth;
+
+      // Process each emoji
+      for (const emoji of emojis) {
+        // Load emoji SVG and convert to image
+        const emojiSvgUrl = twemoji
+          .parse(emoji.char, {
+            folder: 'svg',
+            ext: '.svg',
+            base: 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/',
+          })
+          .match(/src="([^"]+)"/)?.[1];
+
+        if (emojiSvgUrl) {
+          await new Promise((resolve) => {
+            const emojiImg = new Image();
+            emojiImg.onload = () => {
+              // Scale emoji position and size to match original image dimensions
+              const x = emoji.x * scaleFactor;
+              const y = emoji.y * scaleFactor;
+              const width = emoji.width * scaleFactor * emoji.scale;
+
+              ctx.drawImage(emojiImg, x, y, width, width);
+              resolve(null);
+            };
+            emojiImg.crossOrigin = 'anonymous';
+            emojiImg.src = emojiSvgUrl;
+          });
+        }
+      }
+
+      // Convert canvas to blob and download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'face-emoji-image.png';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+        setDownloading(false);
+      }, 'image/png');
+    } catch (error) {
+      console.error('Error creating download:', error);
+      alert('Failed to download image. Please try again.');
+      setDownloading(false);
+    }
   };
 
   return (
@@ -303,6 +391,13 @@ export function App() {
                   class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
                 >
                   Clear All
+                </button>
+                <button
+                  onClick={downloadImage}
+                  disabled={downloading || !imageUrl || emojis.length === 0}
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+                >
+                  {downloading ? 'Processing...' : 'Download Image'}
                 </button>
               </div>
 
