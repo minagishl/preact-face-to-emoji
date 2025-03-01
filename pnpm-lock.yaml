@@ -17,6 +17,9 @@ importers:
       face-api.js:
         specifier: ^0.22.2
         version: 0.22.2
+      heic2any:
+        specifier: ^0.0.4
+        version: 0.0.4
       preact:
         specifier: ^10.25.4
         version: 10.25.4
@@ -630,6 +633,9 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  heic2any@0.0.4:
+    resolution: {integrity: sha512-3lLnZiDELfabVH87htnRolZ2iehX9zwpRyGNz22GKXIu0fznlblf0/ftppXKNqS26dqFSeqfIBhAmAj/uSp0cA==}
 
   jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
@@ -1445,6 +1451,8 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   he@1.2.0: {}
+
+  heic2any@0.0.4: {}
 
   jiti@2.4.2: {}
 

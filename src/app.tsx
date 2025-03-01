@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import * as faceapi from 'face-api.js';
 import twemoji from 'twemoji';
+import heic2any from 'heic2any';
 
 interface Emoji {
   id: string;
@@ -72,18 +73,44 @@ export function App() {
   };
 
   // Handle image file upload
-  const handleImageUpload = (file: File) => {
-    if (!file.type.match('image.*')) {
-      alert('Please select an image file.');
-      return;
-    }
+  const handleImageUpload = async (file: File) => {
+    try {
+      let processedFile = file;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImageUrl(e.target?.result as string);
-      setEmojis([]);
-    };
-    reader.readAsDataURL(file);
+      // Convert HEIC to JPEG if needed
+      if (
+        file.type === 'image/heic' ||
+        file.name.toLowerCase().endsWith('.heic')
+      ) {
+        const blob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.92,
+        });
+        processedFile = new File(
+          [blob as Blob],
+          file.name.replace(/\.heic$/i, '.jpg'),
+          {
+            type: 'image/jpeg',
+          }
+        );
+      }
+
+      if (!processedFile.type.match('image.*')) {
+        alert('Please select an image file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageUrl(e.target?.result as string);
+        setEmojis([]);
+      };
+      reader.readAsDataURL(processedFile);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('Error processing image. Please try another file.');
+    }
   };
 
   // Handle file drop
@@ -461,7 +488,7 @@ export function App() {
           <input
             type="file"
             id="imageUpload"
-            accept="image/*"
+            accept="image/*,.heic"
             class="hidden"
             onChange={(e) => {
               const file = (e.target as HTMLInputElement).files?.[0];
